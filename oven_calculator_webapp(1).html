@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wood-Fired Oven Material Cost Calculator</title>
+  <style>
+    :root{--bg:#0f1724;--panel:#0b1220;--muted:#94a3b8;--accent:#f59e0b}
+    *{box-sizing:border-box}
+    body{font-family:Inter,Arial; margin:0; background:#071429; color:#e6eef7; padding:28px; display:flex; justify-content:center}
+    .app{width:1000px; background:linear-gradient(180deg,#ffffff08,#ffffff03); border-radius:16px; padding:24px; box-shadow:0 10px 30px #0008}
+    h1{margin:0 0 10px; font-size:22px}
+    .grid{display:grid; grid-template-columns:1fr 340px; gap:18px}
+    .panel{background:#0b1220; padding:16px; border-radius:12px}
+    label{display:block; font-size:13px; color:var(--muted); margin-bottom:4px}
+    input,select{width:100%; padding:8px; border-radius:8px; background:#ffffff05; border:1px solid #ffffff08; color:#fff; margin-bottom:10px}
+    button{background:var(--accent); padding:10px; border:none; border-radius:10px; cursor:pointer; font-weight:600; color:#000}
+    .results div{padding:6px 0; border-bottom:1px solid #ffffff10}
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <h1>Wood-Fired Oven Material Cost Calculator</h1>
+
+  <div class="grid">
+    <div class="panel">
+      <label>Units</label>
+      <select id="units"><option value="in">Inches</option><option value="cm">Centimeters</option><option value="mm">Millimeters</option></select>
+
+      <label>Base Width</label><input id="width" type="number" value="20">
+      <label>Base Depth</label><input id="depth" type="number" value="20">
+      <label>Height / Layers Height</label><input id="height" type="number" value="10">
+
+      <label>Construction Type</label>
+      <select id="shape"><option value="rect">Rectangular Box</option><option value="half">Half-Pipe Vault</option><option value="dome">Dome</option></select>
+
+      <h3>Materials</h3>
+      <label><input type="checkbox" id="useBrick"> Regular Brick ($/brick)</label>
+      <input id="brickCost" type="number" value="1.5">
+      <label><input type="checkbox" id="useFirebrick" checked> Firebrick ($/brick)</label>
+      <input id="firebrickCost" type="number" value="3">
+      <label><input type="checkbox" id="useSteel"> Steel Plate ($/sq unit)</label>
+      <input id="steelCost" type="number" value="0.1">
+
+      <h3>Standard Material Sizes</h3>
+      <label>Brick Area</label><input id="brickArea" type="number" value="18">
+      <label>Firebrick Area</label><input id="firebrickArea" type="number" value="40.5">
+
+      <button onclick="calculate()">Calculate</button>
+    </div>
+
+    <div class="panel results" id="results">—</div>
+  </div>
+</div>
+
+<script>
+function calculate(){
+  const w = +width.value, d = +depth.value, h = +height.value;
+  const shapeVal = shape.value;
+
+  let base = w*d, walls=0;
+  if(shapeVal==='rect') walls = 2*w*h + 2*d*h;
+  if(shapeVal==='half'){ let r=w/2; walls = Math.PI*r * d; }
+  if(shapeVal==='dome'){ let r=w/2; walls = 2*Math.PI*r*r; }
+  let total = base + walls;
+
+  let out = `Base Area: ${base.toFixed(2)} sq<br>Wall Area: ${walls.toFixed(2)} sq<br>Total Area: ${total.toFixed(2)} sq<br><br>`;
+
+  if(useBrick.checked){ let c=Math.ceil(total / +brickArea.value); out += `Bricks: ${c} — $${(c*brickCost.value).toFixed(2)}<br>`; }
+  if(useFirebrick.checked){ let c=Math.ceil(total / +firebrickArea.value); out += `Firebricks: ${c} — $${(c*firebrickCost.value).toFixed(2)}<br>`; }
+  if(useSteel.checked){ out += `Steel Cost: $${(total*steelCost.value).toFixed(2)}<br>`; }
+
+  results.innerHTML = out;
+}
+</script>
+
+</body>
+</html>
